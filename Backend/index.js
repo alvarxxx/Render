@@ -6,6 +6,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+app.use(express.static('dist'))
+
 let notes = [
   {
     id: 1,
@@ -37,6 +39,27 @@ app.get('/api/notes/:id', (request, response) => {
   } else {
     response.status(404).end()
   }
+})
+
+app.put('/api/notes/:id', (request, response) => {
+  const id = Number(request.params.id)
+  const body = request.body
+
+  const note = notes.find(n => n.id === id)
+
+  if (!note) {
+    return response.status(404).json({ error: 'note not found' })
+  }
+
+  const updatedNote = {
+    ...note,
+    content: body.content,
+    important: body.important
+  }
+
+  notes = notes.map(n => n.id === id ? updatedNote : n)
+
+  response.json(updatedNote)
 })
 
 app.delete('/api/notes/:id', (request, response) => {
